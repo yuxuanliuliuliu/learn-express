@@ -58,9 +58,12 @@ app.use('/write/adduser', addMsgToRequest);
 app.post('/write/adduser', (req: UserRequest, res: Response) => {
   let newuser = req.body as User;
   users.push(newuser);
+  /**
+   * Synchronous call to compute the size of the data file
+   */
   const dataFileSize = fs.statSync(path.resolve(__dirname, dataFile)).size;
   if(dataFileSize > 1024) {
-    bkupEmitter.emit('bkup', users, path.resolve(__dirname, bkupFile));
+    bkupEmitter.emit('bkup', users, path.resolve(__dirname, bkupFile)); // emit bkup event when the file size is over 10 Kb
   }
   else {
     fs.writeFile(path.resolve(__dirname, dataFile), JSON.stringify(users), (err) => {
