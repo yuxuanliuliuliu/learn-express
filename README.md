@@ -2,7 +2,7 @@
 
 ## Setup
 - Run `npm install` from the project root.
-- Run `npm install` from `client/`.
+- Run `npm install` from `ui-app/`.
 
 To run any server use `node /path/to/server` from the project root.
 

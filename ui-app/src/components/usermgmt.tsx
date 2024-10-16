@@ -19,7 +19,7 @@ interface EmailResponse {
   email?: string;
 }
 
-const UserManagement: React.FC = () => {
+const UserManagement = () => {
   const [usernames, setUsernames] = useState<UsernameResponse[]>([]);
   const [showUsernames, setShowUsernames] = useState<boolean>(false);
   const [showAddUserForm, setShowAddUserForm] = useState<boolean>(false);

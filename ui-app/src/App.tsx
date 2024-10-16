@@ -1,5 +1,5 @@
 import './App.css';
-import UserManagement from './components/usermgmt';
+import UserManagement from './componentsRefactored/UserManagement';
 
 function App() {
   return (
