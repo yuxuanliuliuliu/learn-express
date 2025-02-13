@@ -1,6 +1,6 @@
-import fs from 'fs';
+import  { promises as fsPromises } from 'fs';
 import path from 'path';
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 
 interface User {
@@ -19,13 +19,23 @@ const app = express();
 const port = 8000;
 const dataFile = '../data/users.json';
 
-let users: User[];
+let users: User[] = [];
 
-fs.readFile(path.resolve(__dirname, dataFile), (err, data) => {
-  console.log('reading file ... ');
-  if (err) throw err;
-  users = JSON.parse(data.toString());
-});
+async function readUsersFile() {
+  try {
+    console.log('reading file ... ');
+    const data = await fsPromises.readFile(path.resolve(__dirname, dataFile));
+    users = JSON.parse(data.toString());
+    console.log('File read successfully');
+  } catch (err) {
+    console.error('Error reading file:', err);
+    throw err;
+  }
+}
+
+// Usage
+readUsersFile();
+
 
 const addMsgToRequest = (req: UserRequest, res: Response, next: NextFunction) => {
   if (users) {
@@ -54,7 +64,7 @@ app.get('/read/username/:name', (req: UserRequest, res: Response) => {
   let users_with_name = req.users?.filter(function(user) {
     return user.username === name;
   });
-  console.log(users_with_name);
+  
   if(users_with_name?.length === 0) {
     res.send({
       error: {message: `${name} not found`, status: 404}
@@ -69,14 +79,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/write/adduser', addMsgToRequest);
 
-app.post('/write/adduser', (req: UserRequest, res: Response) => {
-  let newuser = req.body as User;
-  users.push(newuser);
-  fs.writeFile(path.resolve(__dirname, dataFile), JSON.stringify(users), (err) => {
-    if (err) console.log('Failed to write');
-    else console.log('User Saved');
-  });
-  res.send('done');
+app.post('/write/adduser', async (req: UserRequest, res: Response) => {
+  try {
+    let newuser = req.body as User;
+    users.push(newuser);
+    
+    await fsPromises.writeFile(
+      path.resolve(__dirname, dataFile), 
+      JSON.stringify(users)
+    );
+    
+    console.log('User Saved');
+    res.send('done');
+  } catch (err) {
+    console.log('Failed to write:', err);
+    res.status(500).send('Error saving user');
+  }
 });
 
 app.listen(port, () => {

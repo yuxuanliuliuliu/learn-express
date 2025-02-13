@@ -1,6 +1,6 @@
-import fs from 'fs';
+import  { promises as fsPromises } from 'fs';
 import path from 'path';
-import express, { Express, Request, Response, NextFunction } from 'express';
+import express, { Response, NextFunction } from 'express';
 import cors from 'cors';
 import { User, UserRequest } from './types';
 import readUsers from './readUsers';
@@ -12,11 +12,19 @@ const dataFile = '../data/users.json';
 
 let users: User[];
 
-fs.readFile(path.resolve(__dirname, dataFile), (err, data) => {
-  console.log('reading file ... ');
-  if (err) throw err;
-  users = JSON.parse(data.toString());
-});
+async function readUsersFile() {
+  try {
+    console.log('reading file ... ');
+    const data = await fsPromises.readFile(path.resolve(__dirname, dataFile));
+    users = JSON.parse(data.toString());
+    console.log('File read successfully');
+  } catch (err) {
+    console.error('Error reading file:', err);
+    throw err;
+  }
+}
+
+readUsersFile();
 
 const addMsgToRequest = (req: UserRequest, res: Response, next: NextFunction) => {
   if (users) {
