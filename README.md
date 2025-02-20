@@ -4,7 +4,7 @@
 - Run `npm install` from the project root.
 - Run `npm install` from `ui-app/`.
 
-To run any server use `node /path/to/server` from the project root.
+To run any server use `npx ts-node /path/to/server` from the project root.
 
 ## For You to Do
 
