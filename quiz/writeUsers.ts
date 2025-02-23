@@ -1,25 +1,9 @@
 import express, { Response, NextFunction, Request } from 'express';
 import  { promises as fsPromises } from 'fs';
 import path from 'path';
+import {User, UserRequest} from './types'
 
 const router = express.Router()
-/**
- * A type that represents a user object
- */
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-}
-
-/**
- * A type that represents the request received by the server
- */
-interface UserRequest extends Request {
-  users?: User[];
-}
 const dataFile = '../data/users.json';
 let users: User[];
 

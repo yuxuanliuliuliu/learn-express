@@ -1,26 +1,10 @@
 import  { promises as fsPromises } from 'fs';
 import express, { Response, NextFunction, Request } from 'express';
 import path from 'path';
+import {User, UserRequest} from './types'
 
 const router = express.Router();
 
-/**
- * A type that represents a user object
- */
-interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  username: string;
-  email: string;
-}
-
-/**
- * A type that represents the request received by the server
- */
-interface UserRequest extends Request {
-  users?: User[];
-}
 const dataFile = '../data/users.json';
 let users: User[];
 
@@ -30,6 +14,7 @@ async function readUsersFile() {
     const data = await fsPromises.readFile(path.resolve(__dirname, dataFile));
     users = JSON.parse(data.toString());
     console.log('File read successfully');
+    return users
   } catch (err) {
     console.error('Error reading file:', err);
     throw err;
@@ -38,7 +23,8 @@ async function readUsersFile() {
 
 readUsersFile();
 
-const addMsgToRequest = (req: UserRequest, res: Response, next: NextFunction) => {
+const addMsgToRequest = async (req: UserRequest, res: Response, next: NextFunction) => {
+  req.users = await readUsersFile(); // read new users
   if (users) {
     req.users = users;
     next();
