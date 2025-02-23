@@ -2,6 +2,7 @@ import  { promises as fsPromises } from 'fs';
 import path from 'path';
 import express, { Express, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import { error } from 'console';
 
 /**
  * A type that represents a user object
@@ -61,13 +62,26 @@ const addMsgToRequest = (req: UserRequest, res: Response, next: NextFunction) =>
 app.use(cors({ origin: 'http://localhost:3000' }));
 // adds the middleware function to the application
 app.use('/read/usernames', addMsgToRequest);
-
-// a route that sends the usernames of the users to the client
 app.get('/read/usernames', (req: UserRequest, res: Response) => {
   let usernames = req.users?.map((user) => {
-    return { id: user.id, username: user.username };
+  return { id: user.id, username: user.username };
   });
-  res.send(usernames);
+  res.send(usernames)});
+  
+// a route that sends the usernames of the users to the client
+app.get('/read/username/:name', (req: UserRequest, res: Response) => {
+  let name = req.params.name;
+  let user_with_name = req.users?.filter(function(user) {
+    return user.username ===name;
+  })
+  if (user_with_name?.length ===0){
+    res.send({
+      error: {message: `${name} not found`, status: 404}
+    })
+  }
+  else{
+    res.send(user_with_name)
+  }
 });
 
 // a middleware function that parses the request body to json
